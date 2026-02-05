@@ -31,6 +31,8 @@ services:
       PASSWORD: odoo
     ports:
       - "8069:8069"
+    volumes:
+      - odoo_data:/var/lib/odoo
 
   # ----------------------
   # Backend / API
@@ -82,4 +84,5 @@ services:
 # ----------------------
 volumes:
   postgres_data:
+  odoo_data:
   n8n_data:
