@@ -5,7 +5,7 @@ services:
   db:
     image: postgres:15
     container_name: odoo_postgres
-    restart: always
+    # restart: always
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -14,7 +14,7 @@ services:
       - odoo-db-data:/var/lib/postgresql/data
 
   odoo:
-    image: odoo:17
+    image: odoo:17.0-20240101
     container_name: odoo_app
     depends_on:
       - db
