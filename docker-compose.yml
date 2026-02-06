@@ -1,88 +1,32 @@
-version: "3.9"
+version: '3.9'
 
 services:
 
-  # ----------------------
-  # Base de dados PostgreSQL
-  # ----------------------
-  postgres:
+  db:
     image: postgres:15
-    container_name: postgres_db
+    container_name: odoo_postgres
+    restart: always
     environment:
-      POSTGRES_DB: odoo
-      POSTGRES_USER: odoo
-      POSTGRES_PASSWORD: odoo
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+      - odoo-db-data:/var/lib/postgresql/data
 
-  # ----------------------
-  # ERP Odoo
-  # ----------------------
   odoo:
-    image: odoo:16
+    image: odoo:17
     container_name: odoo_app
     depends_on:
-      - postgres
-    environment:
-      HOST: postgres
-      USER: odoo
-      PASSWORD: odoo
+      - db
     ports:
       - "8069:8069"
     volumes:
-      - odoo_data:/var/lib/odoo
+      - odoo-web-data:/var/lib/odoo
+      - ./odoo/config/odoo.conf:/etc/odoo/odoo.conf
+    environment:
+      - HOST=db
+    restart: always
 
-  # ----------------------
-  # Backend / API
-  # ----------------------
-  backend:
-    build: ./backend
-    container_name: backend_app
-    ports:
-      - "8000:8000"
-    depends_on:
-      - postgres
-      - odoo
-
-  # ----------------------
-  # Frontend Web
-  # ----------------------
-  frontend:
-    build: ./frontend
-    container_name: frontend_app
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
-
-  # ----------------------
-  # Automação / n8n
-  # ----------------------
-  n8n:
-    image: n8nio/n8n
-    container_name: n8n_app
-    ports:
-      - "5678:5678"
-    volumes:
-      - n8n_data:/home/node/.n8n
-
-  # ----------------------
-  # BI / Dashboards (Metabase)
-  # ----------------------
-  metabase:
-    image: metabase/metabase
-    container_name: metabase_app
-    ports:
-      - "3001:3000"
-    depends_on:
-      - postgres
-
-# ----------------------
-# Volumes persistentes
-# ----------------------
 volumes:
-  postgres_data:
-  odoo_data:
-  n8n_data:
+  odoo-db-data:
+  odoo-web-data:
